@@ -6,7 +6,7 @@
 // той продължава да вижда старата версия, докато не изчисти браузъра си.
 // Кешът остава резервата, когато няма мрежа.
 
-const CACHE = 'kcal-v5';
+const CACHE = 'kcal-v6';
 const SHELL = [
   './', './index.html', './css/app.css',
   './js/main.js', './js/util.js', './js/storage.js', './js/state.js',

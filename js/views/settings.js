@@ -29,12 +29,30 @@ export function render() {
   });
 
   $('aMode').value  = p.api.mode;
-  $('aKey').value   = p.api.key;
-  $('aProxy').value = p.api.proxyUrl;
+  // Полето, в което потребителят пише в момента, не се пипа — иначе курсорът скача.
+  fill('aKey', p.api.key);
+  fill('aProxy', p.api.proxyUrl);
   $('aModel').value = p.api.model;
   // Записан модел, който вече не е в списъка, оставя полето празно — върни го към основния.
   if (!$('aModel').value) { p.api.model = DEFAULT_MODEL; $('aModel').value = DEFAULT_MODEL; }
   toggleApiFields();
+  keyState();
+}
+
+const fill = (id, v) => { if (document.activeElement !== $(id)) $(id).value = v; };
+
+/** Полето за ключ е от тип password и Android Chrome го изчиства при
+ *  пререндериране. Затова състоянието се показва с текст, а не се съди по
+ *  това дали в полето се виждат точки. */
+function keyState() {
+  const a = S.profile.api, el = $('keyState');
+  const proxy = a.mode === 'proxy';
+  const ok = proxy ? !!a.proxyUrl : !!a.key;
+  el.textContent = ok
+    ? (proxy ? '✓ Адресът е записан на това устройство.'
+             : '✓ Ключът е записан на това устройство. Остава и след нулиране.')
+    : (proxy ? 'Още няма записан адрес.' : 'Още няма записан ключ.');
+  el.className = 'hint' + (ok ? ' okline' : '');
 }
 
 function toggleApiFields() {
@@ -50,15 +68,28 @@ function readProfile() {
   p.age  = +$('pA').value || p.age;
   p.sex  = $('pS').value;
   p.mult = +$('pM').value;
-  p.api.mode     = $('aMode').value;
-  p.api.key      = $('aKey').value.trim();
-  p.api.proxyUrl = $('aProxy').value.trim();
-  p.api.model    = $('aModel').value;
+  p.api.mode  = $('aMode').value;
+  p.api.model = $('aModel').value;
   save(); render(); onChange();
 }
 
+/** Записва се от собственото си поле и от нищо друго.
+ *  Преди ключът се препрочиташе от DOM-а при промяна на кое да е друго поле —
+ *  една празна стойност в екрана изтриваше записания ключ. Виж DECISIONS.md.
+ *  Слуша `input`, не `change`: записва се при всяко натискане, без да се чака
+ *  полето да загуби фокус. */
+function bindSecret(id, field) {
+  on(id, 'input', () => {
+    S.profile.api[field] = $(id).value.trim();
+    save();
+    keyState();
+  });
+}
+
 export function wire() {
-  ['pW','pH','pA','pS','pM','aKey','aProxy','aModel'].forEach(id => on(id, 'change', readProfile));
+  ['pW','pH','pA','pS','pM','aModel'].forEach(id => on(id, 'change', readProfile));
+  bindSecret('aKey', 'key');
+  bindSecret('aProxy', 'proxyUrl');
   on('aMode', 'change', () => { toggleApiFields(); readProfile(); });
 
   on('testApi', 'click', async () => {
