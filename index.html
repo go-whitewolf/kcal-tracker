@@ -194,13 +194,24 @@
   <div class="field">
     <label for="aModel">Модел</label>
     <select id="aModel">
-      <option value="claude-sonnet-5">Claude Sonnet 5 — балансиран</option>
-      <option value="claude-opus-5">Claude Opus 5 — най-точен, по-скъп</option>
-      <option value="claude-haiku-4-5">Claude Haiku 4.5 — най-бърз и евтин</option>
+      <option value="claude-haiku-4-5">Haiku 4.5 — най-бърз и евтин</option>
+      <option value="claude-sonnet-5">Sonnet 5 — балансиран</option>
+      <option value="claude-opus-5">Opus 5 — по-добър при порции и скрито олио</option>
+      <option value="claude-fable-5-1">Fable 5.1 — най-способният, най-скъп</option>
     </select>
   </div>
   <button class="btn" id="testApi">Провери връзката</button>
-  <p class="hint">Ключът стои само на това устройство и се праща единствено към Anthropic. Една оценка на снимка струва около един цент.</p>
+  <p class="hint">Ключът стои само на това устройство и се праща единствено към Anthropic.</p>
+
+  <div class="note spaced">
+    <b>Кой модел за какво.</b> Разликата се вижда при трудните снимки — смесени чинии,
+    ресторантски порции, сос, който крие олио. При ябълка и трите дават едно и също.<br><br>
+    Цената е за 100 оценки, приблизително:<br>
+    Haiku 4.5 — под 50 цента · Sonnet 5 — около 1 долар ·
+    Opus 5 — около 4 долара · Fable 5.1 — около 8 долара.<br><br>
+    При четири снимки дневно Sonnet 5 излиза около долар на месец. Започни с него;
+    мини на Opus 5, ако забележиш, че бърка систематично.
+  </div>
 
   <h1 class="page">Данни</h1>
   <div class="sheetbtns">
@@ -210,8 +221,9 @@
   <p class="hint">Данните стоят на това устройство. Сваляй архив редовно — при изчистване на браузъра се губят.</p>
   <input type="file" id="impFile" accept="application/json" hidden>
 
-  <button class="btn danger spacedtop" id="resetBtn">Изтрий всичко и започни отначало</button>
+  <button class="btn danger spacedtop" id="resetBtn">Изтрий данните и започни отначало</button>
   <p class="hint">Маха профила и целия дневник от това устройство и връща първоначалния екран.
+    API ключът и настройките за връзка остават — няма да ги въвеждаш пак.
     Свали архив, преди да го натиснеш.</p>
 </div>
 
@@ -315,9 +327,10 @@
 <!-- ============ изтриване на всичко ============ -->
 <div class="scrim" id="resetScrim">
   <div class="sheet">
-    <h3>Да изтрия ли всичко?</h3>
+    <h3>Да изтрия ли дневника?</h3>
     <div class="errbox">Профилът, всички хранения, тренировки и измервания на теглото се махат
       от това устройство. Няма връщане назад — освен от свален архив.</div>
+    <p class="hint">API ключът, начинът на свързване и избраният модел остават непокътнати.</p>
     <div class="sheetbtns">
       <button class="btn" id="rsCancel">Откажи</button>
       <button class="btn danger" id="rsGo">Изтрий</button>

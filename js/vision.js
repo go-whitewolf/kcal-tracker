@@ -71,21 +71,26 @@ function headers() {
 
 const endpoint = () => S.profile.api.mode === 'proxy' ? S.profile.api.proxyUrl : API_URL;
 
-const DEFAULT_MODEL = 'claude-sonnet-5';
+export const DEFAULT_MODEL = 'claude-sonnet-5';
 const model = () => S.profile.api.model || DEFAULT_MODEL;
 
 /** Настройката за мислене се различава по модел — грешната стойност дава 400
  *  или разваля отговора. Виж CLAUDE.md, раздел „Работа с Claude API“. */
 function reasoning(m) {
+  // Fable 5.1 мисли винаги. Всяка изрична настройка на thinking връща 400.
+  if (m.startsWith('claude-fable')) return { output_config: { effort: 'medium' } };
   // Opus 5: с изключено мислене изпуска <thinking> тагове в отговора и чупи JSON-а.
-  // Мисленето остава включено, но на най-ниско ниво — бързо и евтино.
   if (m.startsWith('claude-opus-5')) {
-    return { thinking: { type: 'adaptive' }, output_config: { effort: 'low' } };
+    return { thinking: { type: 'adaptive' }, output_config: { effort: 'medium' } };
   }
   // Haiku 4.5 не мисли по подразбиране и връща грешка при output_config.
   if (m.startsWith('claude-haiku')) return {};
   return { thinking: { type: 'disabled' } };
 }
+
+/** Мислещите модели харчат от същия таван като отговора. 1500 стигаха, докато
+ *  мисленето беше изключено навсякъде; при Opus и Fable отрязваха JSON-а наполовина. */
+const MAX_TOKENS = 8000;
 
 /** Отговорът може да съдържа няколко блока — никога content[0].text. */
 function textOf(data) {
@@ -125,7 +130,7 @@ export async function analyze(base64, userHint) {
   const m = model();
   const body = {
     model: m,
-    max_tokens: 1500,
+    max_tokens: MAX_TOKENS,
     ...reasoning(m),
     system: SYSTEM,
     messages: [{
@@ -151,6 +156,15 @@ export async function analyze(base64, userHint) {
   let data;
   try { data = JSON.parse(raw); }
   catch (e) { throw new Error('Отговорът не е разпознат. Ако ползваш прокси, провери адреса.'); }
+
+  // Мислещите модели могат да откажат заявка или да опрат в тавана — и в двата
+  // случая идва код 200 с непълно съдържание, не грешка.
+  if (data.stop_reason === 'refusal') {
+    throw new Error('Моделът отказа да оцени тази снимка. Пробвай с друга снимка или с друг модел.');
+  }
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error('Отговорът се получи твърде дълъг и беше отрязан. Опитай пак или смени модела.');
+  }
 
   return normalise(parseJson(textOf(data)));
 }
@@ -183,7 +197,7 @@ export async function ping() {
     headers: headers(),
     body: JSON.stringify({
       model: m,
-      max_tokens: 64,
+      max_tokens: 256,
       ...reasoning(m),
       messages: [{ role: 'user', content: 'Отговори само с думата: готово' }]
     })

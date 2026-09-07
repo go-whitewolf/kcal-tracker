@@ -16,17 +16,6 @@ export async function load() {
   } catch (e) { return null; }
 }
 
-/** Маха всичко от това устройство. Не пипа кеша с кода — само данните. */
-export async function wipe() {
-  try {
-    if (window.storage) {
-      if (typeof window.storage.delete === 'function') await window.storage.delete(KEY, false);
-      else await window.storage.set(KEY, '', false);
-    }
-  } catch (e) {}
-  try { localStorage.removeItem(KEY); } catch (e) {}
-}
-
 export async function persist(obj) {
   const s = JSON.stringify(obj);
   try { if (window.storage) await window.storage.set(KEY, s, false); } catch (e) {}

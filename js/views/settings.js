@@ -1,9 +1,8 @@
 // Изглед „Профил“: телесни данни, темп на отслабване, API настройки, архив.
 
-import { S, save, replaceAll } from '../state.js';
-import { wipe } from '../storage.js';
+import { S, save, replaceAll, resetData } from '../state.js';
 import { bmr, baseline, RATES } from '../energy.js';
-import { ping } from '../vision.js';
+import { ping, DEFAULT_MODEL } from '../vision.js';
 import { $, on, fmt, iso, toast, openSheet, closeSheet } from '../util.js';
 
 let onChange = () => {};
@@ -33,6 +32,8 @@ export function render() {
   $('aKey').value   = p.api.key;
   $('aProxy').value = p.api.proxyUrl;
   $('aModel').value = p.api.model;
+  // Записан модел, който вече не е в списъка, оставя полето празно — върни го към основния.
+  if (!$('aModel').value) { p.api.model = DEFAULT_MODEL; $('aModel').value = DEFAULT_MODEL; }
   toggleApiFields();
 }
 
@@ -79,9 +80,9 @@ export function wire() {
 
   on('resetBtn', 'click', () => openSheet('resetScrim'));
   on('rsCancel', 'click', () => closeSheet('resetScrim'));
-  on('rsGo', 'click', async () => {
+  on('rsGo', 'click', () => {
     $('rsGo').disabled = true;
-    await wipe();
+    resetData();
     location.reload();
   });
 

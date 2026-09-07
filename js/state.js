@@ -46,6 +46,16 @@ export function hydrate(saved) {
   if (saved.days && typeof saved.days === 'object') S.days = saved.days;
 }
 
+/** Нулира профила и дневника, но оставя настройките за връзка непокътнати.
+ *  Ключът е нещо, което потребителят е въвел веднъж и не бива да го въвежда пак
+ *  само защото иска да започне дневника отначало. */
+export function resetData() {
+  const api = clone(S.profile.api);
+  Object.assign(S, clone(DEFAULTS));
+  S.profile.api = api;
+  save();
+}
+
 export function replaceAll(obj) {
   if (!obj || !obj.profile || !obj.days) throw new Error('невалиден архив');
   Object.assign(S, clone(DEFAULTS));
