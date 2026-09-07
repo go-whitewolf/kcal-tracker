@@ -6,12 +6,13 @@ import * as dayView from './views/day.js';
 import * as progressView from './views/progress.js';
 import * as settingsView from './views/settings.js';
 import * as welcome from './views/welcome.js';
+import * as install from './views/install.js';
 
 function route(name) {
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === name));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + name));
   if (name === 'prog') progressView.render();
-  if (name === 'set')  settingsView.render();
+  if (name === 'set')  { settingsView.render(); install.render(); }
   window.scrollTo(0, 0);
 }
 
@@ -20,6 +21,7 @@ function route(name) {
 
   dayView.wire();
   settingsView.wire();
+  install.wire();
   dayView.setProfileHook(() => settingsView.render());
   settingsView.setChangeHook(() => dayView.render());
 
@@ -27,7 +29,7 @@ function route(name) {
     b.addEventListener('click', () => route(b.dataset.v));
   });
 
-  const paint = () => { dayView.render(); settingsView.render(); };
+  const paint = () => { dayView.render(); settingsView.render(); install.render(); };
   if (welcome.needed()) welcome.start(paint); else paint();
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') {

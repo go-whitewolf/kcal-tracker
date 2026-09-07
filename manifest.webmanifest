@@ -1,14 +1,19 @@
 {
+  "id": "/kcal-tracker/",
   "name": "Калориен баланс",
   "short_name": "Калории",
-  "start_url": ".",
+  "description": "Дневник за калориен баланс: снимаш храната, Claude оценява калориите.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#141A21",
   "theme_color": "#141A21",
   "lang": "bg",
+  "dir": "ltr",
   "orientation": "portrait",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

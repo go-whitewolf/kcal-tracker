@@ -6,15 +6,16 @@
 // той продължава да вижда старата версия, докато не изчисти браузъра си.
 // Кешът остава резервата, когато няма мрежа.
 
-const CACHE = 'kcal-v6';
+const CACHE = 'kcal-v7';
 const SHELL = [
   './', './index.html', './css/app.css',
   './js/main.js', './js/util.js', './js/storage.js', './js/state.js',
   './js/energy.js', './js/vision.js',
   './js/views/day.js', './js/views/progress.js', './js/views/settings.js',
-  './js/views/welcome.js',
+  './js/views/welcome.js', './js/views/install.js',
   './manifest.webmanifest',
-  './icons/icon-192.png', './icons/icon-512.png'
+  './icons/icon-192.png', './icons/icon-512.png',
+  './icons/icon-180.png', './icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', e => {

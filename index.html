@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Калориен баланс</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -148,6 +148,12 @@
 
 <!-- ============ ПРОФИЛ ============ -->
 <div class="view" id="v-set">
+  <div class="note spaced" id="installBox" hidden>
+    <b id="installTitle"></b>
+    <div id="installText"></div>
+    <button class="btn primary compact spacedtop" id="installBtn" hidden>Инсталирай</button>
+  </div>
+
   <h1 class="page">Профил</h1>
   <div class="grid3">
     <div class="field"><label for="pW">Тегло, кг</label><input type="number" step="0.1" inputmode="decimal" id="pW"></div>
