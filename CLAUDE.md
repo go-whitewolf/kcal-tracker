@@ -27,7 +27,7 @@ index.html              единственият HTML — трите изгле�
 css/app.css             всички стилове, дизайн токени в :root
 js/
   util.js               дати, форматиране, escape, DOM хелпъри
-  storage.js            persistence: window.storage → localStorage fallback, + wipe()
+  storage.js            persistence: window.storage → localStorage fallback
   state.js              единственият източник на истина (обектът S) + save()
   energy.js             BMR, TDEE, MET таблица, изчисления на баланса
   vision.js             камера, свиване на снимката, извикване на Claude API
@@ -38,7 +38,7 @@ js/
   views/install.js      добавяне на началния екран, различно за всеки браузър
   main.js               рутиране между изгледите, инициализация
 worker/index.js         Cloudflare Worker прокси (по избор, за скриване на ключа)
-sw.js                   service worker, „мрежа преди кеш“ — виж правило 10
+sw.js                   service worker, „мрежа преди кеш“ — виж правило 11
 ```
 
 ## Модел на данните
