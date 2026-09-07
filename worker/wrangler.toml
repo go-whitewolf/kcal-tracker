@@ -1,0 +1,7 @@
+name = "kcal-proxy"
+main = "index.js"
+compatibility_date = "2026-01-01"
+
+# Ключовете се задават с `wrangler secret put`, никога тук:
+#   ANTHROPIC_API_KEY  — задължителен
+#   SHARED_SECRET      — по избор, ако искаш само твоят телефон да ползва проксито
