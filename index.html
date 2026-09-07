@@ -16,6 +16,41 @@
 </head>
 <body>
 
+<!-- ============ ПЪРВО ПУСКАНЕ ============ -->
+<div class="welcome" id="welcome">
+  <div class="wcard">
+    <h1>Калориен баланс</h1>
+    <p class="lead">Целта за деня се смята от твоите мерки. Въведи ги веднъж — после се
+      променят по всяко време от „Профил“.</p>
+
+    <div class="grid3">
+      <div class="field"><label for="wW">Тегло, кг</label><input type="number" step="0.1" inputmode="decimal" id="wW" placeholder="82"></div>
+      <div class="field"><label for="wH">Ръст, см</label><input type="number" inputmode="numeric" id="wH" placeholder="178"></div>
+      <div class="field"><label for="wA">Възраст</label><input type="number" inputmode="numeric" id="wA" placeholder="34"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label for="wS">Пол</label><select id="wS"><option value="m">мъж</option><option value="f">жена</option></select></div>
+      <div class="field"><label for="wM">Ежедневие</label>
+        <select id="wM">
+          <option value="1.2">седящо</option>
+          <option value="1.3">леко подвижно</option>
+          <option value="1.4">на крак през деня</option>
+          <option value="1.5">физически труд</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint">Ежедневието е разходът извън тренировките — тях добавяш отделно всеки ден.</p>
+
+    <h2 class="wsec">Каква е целта</h2>
+    <div class="deficitopts" id="wDefs"></div>
+
+    <div class="errbox" id="wErr" hidden></div>
+    <button class="btn primary wgo" id="wGo">Започни</button>
+    <p class="hint">Оценката по снимка иска Anthropic API ключ — добавяш го после в „Профил“.
+      Дневникът работи и без него, с въвеждане на ръка.</p>
+  </div>
+</div>
+
 <div class="wrap">
 
 <!-- ============ ДНЕС ============ -->

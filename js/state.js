@@ -5,15 +5,20 @@ import { today } from './util.js';
 
 const DEFAULTS = {
   profile: {
-    w: 85, h: 170, age: 35, sex: 'm',
+    w: 80, h: 175, age: 30, sex: 'm',
     mult: 1.3,        // разход извън тренировките
     deficit: 450,     // целеви дневен дефицит
+    ready: false,     // false = още не е минал през първоначалния екран
     api: { mode: 'direct', key: '', proxyUrl: '', model: 'claude-sonnet-5' }
   },
   days: {}
 };
 
-export const S = structuredClone(DEFAULTS);
+/** Дълбоко копие. DEFAULTS е чист JSON, така че това е достатъчно — и работи
+ *  на по-стари телефони, където structuredClone още го няма. */
+const clone = o => JSON.parse(JSON.stringify(o));
+
+export const S = clone(DEFAULTS);
 export let cur = today();
 
 export function setCur(d) { cur = d; }
@@ -35,13 +40,15 @@ export function hydrate(saved) {
   if (saved.profile) {
     Object.assign(S.profile, saved.profile);
     S.profile.api = Object.assign({}, DEFAULTS.profile.api, saved.profile.api || {});
+    // Архив отпреди първоначалния екран: профилът вече е попълнен, не питай пак.
+    if (saved.profile.ready === undefined) S.profile.ready = true;
   }
   if (saved.days && typeof saved.days === 'object') S.days = saved.days;
 }
 
 export function replaceAll(obj) {
   if (!obj || !obj.profile || !obj.days) throw new Error('невалиден архив');
-  Object.assign(S, structuredClone(DEFAULTS));
+  Object.assign(S, clone(DEFAULTS));
   hydrate(obj);
   save();
 }

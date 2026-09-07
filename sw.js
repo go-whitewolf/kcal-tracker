@@ -1,12 +1,13 @@
 // Кешира обвивката на приложението, за да работи офлайн.
 // Заявките към Claude API винаги минават по мрежата.
 
-const CACHE = 'kcal-v2';
+const CACHE = 'kcal-v3';
 const SHELL = [
   './', './index.html', './css/app.css',
   './js/main.js', './js/util.js', './js/storage.js', './js/state.js',
   './js/energy.js', './js/vision.js',
   './js/views/day.js', './js/views/progress.js', './js/views/settings.js',
+  './js/views/welcome.js',
   './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png'
 ];

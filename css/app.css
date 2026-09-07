@@ -206,6 +206,15 @@ th.r,td.r{text-align:right}
 .dopt .t span{display:block;color:var(--muted);font-size:12px}
 .dopt .kc{font-weight:600;font-variant-numeric:tabular-nums;font-size:14px}
 
+/* ---- първо пускане ---- */
+.welcome{position:fixed;inset:0;z-index:90;background:var(--ink);overflow-y:auto;display:none}
+.welcome.on{display:block}
+.wcard{max-width:560px;margin:0 auto;padding:36px 14px calc(28px + env(safe-area-inset-bottom))}
+.wcard h1{font-size:24px;font-weight:700;margin:0 0 8px;letter-spacing:-.4px}
+.wcard .lead{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 24px}
+.wsec{font-size:14px;font-weight:600;margin:24px 0 12px}
+.wgo{margin-top:20px}
+
 /* ---- toast ---- */
 .toast{
   position:fixed;left:50%;bottom:92px;transform:translate(-50%,14px);
