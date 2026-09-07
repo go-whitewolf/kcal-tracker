@@ -209,6 +209,10 @@
   </div>
   <p class="hint">Данните стоят на това устройство. Сваляй архив редовно — при изчистване на браузъра се губят.</p>
   <input type="file" id="impFile" accept="application/json" hidden>
+
+  <button class="btn danger spacedtop" id="resetBtn">Изтрий всичко и започни отначало</button>
+  <p class="hint">Маха профила и целия дневник от това устройство и връща първоначалния екран.
+    Свали архив, преди да го натиснеш.</p>
 </div>
 
 </div>
@@ -304,6 +308,19 @@
     <div class="sheetbtns">
       <button class="btn" id="oCancel">Откажи</button>
       <button class="btn primary" id="oSave">Запиши</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ изтриване на всичко ============ -->
+<div class="scrim" id="resetScrim">
+  <div class="sheet">
+    <h3>Да изтрия ли всичко?</h3>
+    <div class="errbox">Профилът, всички хранения, тренировки и измервания на теглото се махат
+      от това устройство. Няма връщане назад — освен от свален архив.</div>
+    <div class="sheetbtns">
+      <button class="btn" id="rsCancel">Откажи</button>
+      <button class="btn danger" id="rsGo">Изтрий</button>
     </div>
   </div>
 </div>

@@ -1,9 +1,10 @@
 // Изглед „Профил“: телесни данни, темп на отслабване, API настройки, архив.
 
 import { S, save, replaceAll } from '../state.js';
+import { wipe } from '../storage.js';
 import { bmr, baseline, RATES } from '../energy.js';
 import { ping } from '../vision.js';
-import { $, on, fmt, iso, toast } from '../util.js';
+import { $, on, fmt, iso, toast, openSheet, closeSheet } from '../util.js';
 
 let onChange = () => {};
 export function setChangeHook(fn) { onChange = fn; }
@@ -74,6 +75,14 @@ export function wire() {
     a.download = 'kcal-' + iso(new Date()) + '.json';
     a.click();
     URL.revokeObjectURL(a.href);
+  });
+
+  on('resetBtn', 'click', () => openSheet('resetScrim'));
+  on('rsCancel', 'click', () => closeSheet('resetScrim'));
+  on('rsGo', 'click', async () => {
+    $('rsGo').disabled = true;
+    await wipe();
+    location.reload();
   });
 
   on('impBtn', 'click', () => $('impFile').click());

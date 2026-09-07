@@ -1,7 +1,12 @@
 // Кешира обвивката на приложението, за да работи офлайн.
 // Заявките към Claude API винаги минават по мрежата.
+//
+// Стратегията е „мрежа преди кеш“. Обратното — кеш преди мрежа — е по-бързо,
+// но разгърната поправка не стига до човек, който вече е отварял приложението:
+// той продължава да вижда старата версия, докато не изчисти браузъра си.
+// Кешът остава резервата, когато няма мрежа.
 
-const CACHE = 'kcal-v3';
+const CACHE = 'kcal-v4';
 const SHELL = [
   './', './index.html', './css/app.css',
   './js/main.js', './js/util.js', './js/storage.js', './js/state.js',
@@ -26,20 +31,17 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.hostname === 'api.anthropic.com') return;
   e.respondWith(
-    caches.match(e.request).then(hit => {
-      if (hit) return hit;
-      return fetch(e.request).then(res => {
-        if (res.ok && url.origin === location.origin) {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copy));
-        }
-        return res;
-      }).catch(() =>
-        // Офлайн и без кеш: при навигация връщаме обвивката, иначе честна грешка.
-        e.request.mode === 'navigate'
-          ? caches.match('./index.html')
-          : new Response('', { status: 504, statusText: 'Офлайн' })
-      );
-    })
+    fetch(e.request).then(res => {
+      if (res.ok && url.origin === location.origin) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+      }
+      return res;
+    }).catch(() => caches.match(e.request).then(hit => hit ||
+      // Офлайн и без кеш: при навигация връщаме обвивката, иначе честна грешка.
+      (e.request.mode === 'navigate'
+        ? caches.match('./index.html')
+        : new Response('', { status: 504, statusText: 'Офлайн' }))
+    ))
   );
 });
