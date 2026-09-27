@@ -30,6 +30,8 @@ const { S, hydrate, resetData, day } = await import('../js/state.js');
 const { needed } = await import('../js/views/welcome.js');
 const { bmr } = await import('../js/energy.js');
 const settings = await import('../js/views/settings.js');
+const { weekStart, sweetsInWeek, sweetLimit } = await import('../js/sweets.js');
+const { analyze } = await import('../js/vision.js');
 
 let bad = 0;
 const t = (n, ok) => { print((ok ? 'ok   ' : 'FAIL ') + n); if (!ok) bad++; };
@@ -91,4 +93,41 @@ nodes.aKey.value = '';
 fire('aKey', 'input');
 t('изрично изчистване от полето се уважава', stored().profile.api.key === '');
 
-print(bad ? ('\n' + bad + ' ПАДНАЛИ ТЕСТА') : '\nвсички ' + 18 + ' теста минават');
+print('\n— сладко —');
+hydrate({ profile: { ready: true, sweetLimit: 2 }, days: {
+  '2026-09-21': { meals: [], workouts: [], weight: null, sweet: true },   // пн
+  '2026-09-24': { meals: [], workouts: [], weight: null, sweet: true },   // чт
+  '2026-09-20': { meals: [], workouts: [], weight: null, sweet: true },   // нд — миналата седмица
+  '2026-09-25': { meals: [], workouts: [], weight: null }                  // стар запис без sweet
+}});
+t('седмицата започва в понеделник', weekStart('2026-09-27') === '2026-09-21');
+t('понеделникът е начало на себе си', weekStart('2026-09-21') === '2026-09-21');
+t('брои само текущата седмица', sweetsInWeek('2026-09-27') === 2);
+t('неделята отпреди е в друга седмица', sweetsInWeek('2026-09-20') === 1);
+t('стар ден без поле sweet не гърми', day('2026-09-25').sweet === false);
+t('лимитът идва от профила', sweetLimit() === 2);
+hydrate({ profile: { ready: true }, days: {} });
+S.profile.sweetLimit = undefined;
+t('без лимит в профила — по подразбиране 2', sweetLimit() === 2);
+
+print('\n— оценка по текст —');
+let sent = null;
+globalThis.fetch = async (url, opts) => {
+  sent = JSON.parse(opts.body);
+  return { ok: true, status: 200, text: async () => JSON.stringify({
+    stop_reason: 'end_turn',
+    content: [{ type: 'text', text: '{"dish":"Ориз с пиле","items":[' +
+      '{"name":"ориз","grams":200,"kcal":260,"protein":5},' +
+      '{"name":"пиле","grams":100,"kcal":165,"protein":31}],' +
+      '"total_kcal":425,"total_protein":36,"confidence":"висока","note":""}' }]
+  }) };
+};
+S.profile.api = { mode: 'direct', key: KEY, proxyUrl: '', model: 'claude-sonnet-5' };
+const r = await analyze(null, '200 г ориз, 100 г пиле');
+t('текстът се праща без снимка', typeof sent.messages[0].content === 'string');
+t('описанието влиза в заявката', sent.messages[0].content.indexOf('200 г ориз') !== -1);
+t('резултатът се разчита', r.items.length === 2 && r.total_kcal === 425);
+await analyze('QUJD', '');
+t('снимката още се праща като image блок', sent.messages[0].content[0].type === 'image');
+
+print(bad ? ('\n' + bad + ' ПАДНАЛИ ТЕСТА') : '\nвсички тестове минават');

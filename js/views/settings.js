@@ -12,6 +12,7 @@ export function render() {
   const p = S.profile;
   $('pW').value = p.w; $('pH').value = p.h; $('pA').value = p.age;
   $('pS').value = p.sex; $('pM').value = p.mult;
+  $('pSw').value = String(p.sweetLimit ?? 2);
 
   $('bmrOut').textContent  = fmt(bmr());
   $('baseOut').textContent = fmt(baseline());
@@ -68,6 +69,7 @@ function readProfile() {
   p.age  = +$('pA').value || p.age;
   p.sex  = $('pS').value;
   p.mult = +$('pM').value;
+  p.sweetLimit = +$('pSw').value;
   p.api.mode  = $('aMode').value;
   p.api.model = $('aModel').value;
   save(); render(); onChange();
@@ -87,7 +89,7 @@ function bindSecret(id, field) {
 }
 
 export function wire() {
-  ['pW','pH','pA','pS','pM','aModel'].forEach(id => on(id, 'change', readProfile));
+  ['pW','pH','pA','pS','pM','pSw','aModel'].forEach(id => on(id, 'change', readProfile));
   bindSecret('aKey', 'key');
   bindSecret('aProxy', 'proxyUrl');
   on('aMode', 'change', () => { toggleApiFields(); readProfile(); });

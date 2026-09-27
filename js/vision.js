@@ -7,7 +7,12 @@ const API_URL  = 'https://api.anthropic.com/v1/messages';
 const MAX_EDGE = 1280;   // по-голямо не подобрява оценката, но оскъпява заявката
 const QUALITY  = 0.82;
 
-const SYSTEM = `Ти си нутриционист, който оценява калориите на ястие по снимка.
+const SYSTEM = `Ти си нутриционист, който оценява калориите на ястие по снимка или по описание.
+
+Когато получиш описание с грамажи, грамажите са зададени от човека — не ги променяй,
+само ги пресметни. Ако не е казано дали продуктът е суров или сготвен (ориз, паста,
+месо), приеми сготвен вид и го спомени в "note" — разликата е двойна до тройна.
+Ако грамаж липсва, приеми обичайна порция и го кажи в "note".
 
 Разпознай отделните компоненти и за всеки дай реалистична оценка на грамажа,
 калориите и протеина. Съобразявай се със следното:
@@ -118,14 +123,21 @@ function friendlyError(status, body) {
 }
 
 /** Изпраща снимката и връща обекта с оценката. */
+/** base64 === null → оценка само по текст. */
 export async function analyze(base64, userHint) {
   const api = S.profile.api;
   if (api.mode === 'direct' && !api.key) throw new Error('Липсва API ключ. Въведи го в „Профил“.');
   if (api.mode === 'proxy'  && !api.proxyUrl) throw new Error('Липсва адрес на проксито.');
 
-  const ask = userHint
-    ? 'Оцени калориите на това ястие. Допълнителна информация от мен: ' + userHint
-    : 'Оцени калориите на това ястие.';
+  const ask = !base64
+    ? 'Оцени калориите по това описание на храненето: ' + userHint
+    : userHint
+      ? 'Оцени калориите на това ястие. Допълнителна информация от мен: ' + userHint
+      : 'Оцени калориите на това ястие.';
+  const content = base64
+    ? [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
+       { type: 'text', text: ask }]
+    : ask;
 
   const m = model();
   const body = {
@@ -133,13 +145,7 @@ export async function analyze(base64, userHint) {
     max_tokens: MAX_TOKENS,
     ...reasoning(m),
     system: SYSTEM,
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
-        { type: 'text', text: ask }
-      ]
-    }]
+    messages: [{ role: 'user', content }]
   };
   // Внимание: не задавай temperature / top_p / top_k — Sonnet 5 връща 400.
 
@@ -160,7 +166,7 @@ export async function analyze(base64, userHint) {
   // Мислещите модели могат да откажат заявка или да опрат в тавана — и в двата
   // случая идва код 200 с непълно съдържание, не грешка.
   if (data.stop_reason === 'refusal') {
-    throw new Error('Моделът отказа да оцени тази снимка. Пробвай с друга снимка или с друг модел.');
+    throw new Error('Моделът отказа тази оценка. Пробвай с друга снимка или описание, или с друг модел.');
   }
   if (data.stop_reason === 'max_tokens') {
     throw new Error('Отговорът се получи твърде дълъг и беше отрязан. Опитай пак или смени модела.');

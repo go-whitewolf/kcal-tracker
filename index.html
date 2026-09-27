@@ -92,6 +92,7 @@
     Снимай храната
   </button>
   <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
+  <button class="btn textbtn" id="textBtn">Опиши с текст — „200 г ориз, 100 г пиле“</button>
 
   <section>
     <div class="shead">
@@ -108,6 +109,14 @@
       <button class="addbtn" id="addWo">+ добави</button>
     </div>
     <div id="woList"></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Сладко <span class="sum" id="swWeek"></span></h2></div>
+    <div class="swbox">
+      <button class="btn" id="swBtn">Ядох сладко днес</button>
+    </div>
+    <p class="hint" id="swHint"></p>
   </section>
 
   <section>
@@ -172,6 +181,12 @@
     </div>
   </div>
   <p class="hint">Ежедневието е разходът извън тренировките. Тренировките се добавят отделно всеки ден, затова тук не ги включвай.</p>
+  <div class="field"><label for="pSw">Сладко — колко дни седмично</label>
+    <select id="pSw">
+      <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+      <option value="3">3</option><option value="4">4</option><option value="7">всеки ден</option>
+    </select>
+  </div>
 
   <div class="note spaced">Базален обмен <b id="bmrOut">—</b> kcal · базова линия без тренировка <b id="baseOut">—</b> kcal</div>
 
@@ -245,15 +260,20 @@
 <!-- ============ снимка → оценка ============ -->
 <div class="scrim" id="photoScrim">
   <div class="sheet">
-    <h3>Оценка по снимка</h3>
+    <h3 id="estTitle">Оценка по снимка</h3>
     <img id="preview" class="preview" alt="Снимка на храната">
 
     <div id="photoAsk">
-      <div class="field">
+      <div class="field" id="descField" hidden>
+        <label for="descTxt">Какво яде</label>
+        <textarea id="descTxt" rows="3" placeholder="напр. 200 г ориз, 100 г пилешко филе на скара, салата с лъжица зехтин"></textarea>
+      </div>
+      <p class="hint" id="descHint" hidden>Пиши грамажите, ако ги знаеш — те се пресмятат точно, не се гадаят. Кажи дали е сурово или сготвено: 100 г сух ориз са около три пъти повече калории от 100 г сготвен.</p>
+      <div class="field" id="hintField">
         <label for="hintTxt">Подсказка (по избор)</label>
         <input id="hintTxt" placeholder="напр. хотелски бюфет, пилешкото е с кожа">
       </div>
-      <p class="hint">Кажи какво окото не вижда — начин на готвене, скрито олио, размер на чинията. Оценката става чувствително по-точна.</p>
+      <p class="hint" id="photoHint">Кажи какво окото не вижда — начин на готвене, скрито олио, размер на чинията. Оценката става чувствително по-точна.</p>
       <div class="sheetbtns">
         <button class="btn" id="phCancel">Откажи</button>
         <button class="btn primary" id="phGo">Оцени</button>
@@ -261,7 +281,7 @@
     </div>
 
     <div id="photoBusy" hidden>
-      <div class="busy"><span class="spin" aria-hidden="true"></span> Разчитам чинията…</div>
+      <div class="busy"><span class="spin" aria-hidden="true"></span> <span id="busyTxt">Разчитам чинията…</span></div>
     </div>
 
     <div id="photoRes" hidden>

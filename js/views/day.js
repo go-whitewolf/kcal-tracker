@@ -1,8 +1,9 @@
-// Изглед „Днес“: баланс, хранения, тренировки, тегло, оценка по снимка.
+// Изглед „Днес“: баланс, хранения, тренировки, сладко, тегло, оценка по снимка или текст.
 
 import { S, cur, setCur, day, save } from '../state.js';
 import { totals, autoKcal, WNAME, KCAL_PER_KG } from '../energy.js';
 import { prepareImage, analyze } from '../vision.js';
+import { sweetsInWeek, sweetLimit } from '../sweets.js';
 import {
   $, on, fmt, esc, fromIso, shift, today, DOW, MON,
   openSheet, closeSheet, show, toast
@@ -41,6 +42,7 @@ export function render() {
   renderMeals(dd);
   renderChips();
   renderWorkouts(dd);
+  renderSweet(dd);
 
   $('wShow').innerHTML = dd.weight ? dd.weight.toFixed(1) + '<small>кг</small>' : '—<small>кг</small>';
   $('wIn').value = '';
@@ -50,7 +52,8 @@ function renderMeals(dd) {
   const list = $('mealList');
   list.innerHTML = dd.meals.length ? '' : '<div class="empty">Още нищо. Снимай храната или добави на ръка.</div>';
   dd.meals.forEach((m, i) => {
-    const meta = [m.src === 'photo' ? 'по снимка' : null, m.prot ? m.prot + ' г протеин' : null]
+    const how = { photo: 'по снимка', text: 'по описание' }[m.src] || null;
+    const meta = [how, m.prot ? m.prot + ' г протеин' : null]
       .filter(Boolean).join(' · ');
     const el = document.createElement('div');
     el.className = 'item';
@@ -99,6 +102,31 @@ function renderWorkouts(dd) {
   });
 }
 
+/* ---------------- сладко ---------------- */
+
+function renderSweet(dd) {
+  const n = sweetsInWeek(cur), lim = sweetLimit(), over = n > lim;
+  const btn = $('swBtn');
+  btn.textContent = dd.sweet ? '✓ Сладко днес — махни' : 'Ядох сладко днес';
+  btn.classList.toggle('swon', dd.sweet);
+
+  const wk = $('swWeek');
+  wk.textContent = '· ' + n + ' от ' + lim + ' тази седмица';
+  wk.classList.toggle('over', over);
+
+  $('swHint').textContent = over
+    ? 'Над седмичния лимит с ' + (n - lim) + '. Седмицата се нулира в понеделник.'
+    : n === lim ? 'Лимитът за седмицата е изпълнен. Следващото сладко е от понеделник.'
+    : 'Остават ' + (lim - n) + ' за седмицата. Седмицата е от понеделник до неделя.';
+}
+
+function toggleSweet() {
+  const dd = day();
+  dd.sweet = !dd.sweet;
+  save(); render();
+  if (dd.sweet && sweetsInWeek(cur) > sweetLimit()) toast('Отбелязано — над седмичния лимит.');
+}
+
 /* ---------------- хранене на ръка ---------------- */
 
 let editIdx = null;
@@ -118,7 +146,8 @@ function editMeal(i) {
 
 /* ---------------- оценка по снимка ---------------- */
 
-let shot = null;   // { base64, preview }
+let shot = null;     // { base64, preview }
+let mode = 'photo';  // 'photo' | 'text' — един и същ лист, две входни точки
 
 function photoStage(stage) {
   ['photoAsk', 'photoBusy', 'photoRes', 'photoErr'].forEach(id => show(id, id === stage));
@@ -132,6 +161,7 @@ async function onPhotoPicked(e) {
     shot = await prepareImage(file);
     $('preview').src = shot.preview;
     $('hintTxt').value = '';
+    setMode('photo');
     photoStage('photoAsk');
     openSheet('photoScrim');
   } catch (err) {
@@ -139,10 +169,33 @@ async function onPhotoPicked(e) {
   }
 }
 
+function setMode(m) {
+  mode = m;
+  const text = m === 'text';
+  $('estTitle').textContent = text ? 'Оценка по описание' : 'Оценка по снимка';
+  show('preview', !text);
+  show('descField', text); show('descHint', text);
+  show('hintField', !text); show('photoHint', !text);
+  $('busyTxt').textContent = text ? 'Смятам…' : 'Разчитам чинията…';
+}
+
+function openText() {
+  shot = null;
+  $('descTxt').value = '';
+  setMode('text');
+  photoStage('photoAsk');
+  openSheet('photoScrim');
+  setTimeout(() => $('descTxt').focus(), 80);
+}
+
 async function runAnalysis() {
+  const desc = $('descTxt').value.trim();
+  if (mode === 'text' && !desc) { toast('Опиши какво яде.'); return; }
   photoStage('photoBusy');
   try {
-    const r = await analyze(shot.base64, $('hintTxt').value.trim());
+    const r = mode === 'text'
+      ? await analyze(null, desc)
+      : await analyze(shot.base64, $('hintTxt').value.trim());
     showResult(r);
   } catch (err) {
     $('errTxt').textContent = err.message;
@@ -177,7 +230,7 @@ function showResult(r) {
       name: r.dish,
       kcal: sumOf(r),
       prot: r.total_protein,
-      src: 'photo'
+      src: mode
     });
     save();
     closeSheet('photoScrim');
@@ -216,6 +269,8 @@ export function wire() {
   on('todayBtn', 'click', () => { setCur(today()); render(); });
 
   on('shootBtn', 'click', () => $('photoIn').click());
+  on('textBtn', 'click', openText);
+  on('swBtn', 'click', toggleSweet);
   on('photoIn', 'change', onPhotoPicked);
   on('phGo', 'click', runAnalysis);
   on('phCancel', 'click', () => closeSheet('photoScrim'));

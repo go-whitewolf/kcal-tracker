@@ -9,6 +9,7 @@ const DEFAULTS = {
     mult: 1.3,        // разход извън тренировките
     deficit: 450,     // целеви дневен дефицит
     ready: false,     // false = още не е минал през първоначалния екран
+    sweetLimit: 2,    // дни със сладко на седмица
     api: { mode: 'direct', key: '', proxyUrl: '', model: 'claude-sonnet-5' }
   },
   days: {}
@@ -30,6 +31,7 @@ export function day(key = cur) {
   if (!Array.isArray(d.meals))    d.meals = [];
   if (!Array.isArray(d.workouts)) d.workouts = [];
   if (d.weight === undefined)     d.weight = null;
+  if (typeof d.sweet !== 'boolean') d.sweet = false;
   return d;
 }
 

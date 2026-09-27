@@ -30,7 +30,8 @@ js/
   storage.js            persistence: window.storage → localStorage fallback
   state.js              единственият източник на истина (обектът S) + save()
   energy.js             BMR, TDEE, MET таблица, изчисления на баланса
-  vision.js             камера, свиване на снимката, извикване на Claude API
+  vision.js             камера, свиване на снимката, извикване на Claude API (снимка или текст)
+  sweets.js             сладко: брой дни в седмицата (пн–нд) срещу лимита от профила
   views/day.js          изглед "Днес"
   views/progress.js     изглед "Прогрес" — графика, таблица, калибрация
   views/settings.js     изглед "Профил" — данни, дефицит, API настройки
@@ -47,12 +48,13 @@ sw.js                   service worker, „мрежа преди кеш“ — �
 
 ```js
 {
-  profile: { w, h, age, sex, mult, deficit, ready, api:{ mode, key, proxyUrl, model } },
+  profile: { w, h, age, sex, mult, deficit, ready, sweetLimit, api:{ mode, key, proxyUrl, model } },
   days: {
     "2026-09-07": {
-      meals:    [{ name, kcal, prot, src }],      // src: "manual" | "photo"
+      meals:    [{ name, kcal, prot, src }],      // src: "manual" | "photo" | "text"
       workouts: [{ name, type, min, km, kcal }],
-      weight:   85.0 | null
+      weight:   85.0 | null,
+      sweet:    false                             // ял ли е сладко този ден
     }
   }
 }
@@ -160,7 +162,15 @@ sw.js                   service worker, „мрежа преди кеш“ — �
 
 `jsc` идва с macOS — няма какво да се инсталира. `tests/run.mjs` вдига мъничък фалшив DOM
 и покрива трите неща, които вече веднъж се счупиха тихо: първоначалния екран, нулирането
-и записването на ключа. **Пускай ги след всяка промяна по `state.js` или `settings.js`.**
+и записването на ключа, плюс сладкото и оценката по текст (с подменен `fetch`).
+**Пускай ги след всяка промяна по `state.js`, `settings.js`, `vision.js` или `sweets.js`.**
+
+```bash
+python3 tests/check_dom.py
+```
+
+Статична сверка: всяко `id`, търсено от JS, съществува в HTML; всеки внос има износ; всеки
+модул е в `SHELL` на service worker-а (иначе офлайн се чупи). Пускай я след всяка промяна.
 
 ## Локално стартиране
 

@@ -13,6 +13,8 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
+/* hidden трябва да печели срещу display от класа — иначе .preview{display:block} не се скрива */
+[hidden]{display:none!important}
 body{
   background:var(--ink);color:var(--text);
   font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
@@ -77,6 +79,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:14p
 
 /* ---- sections ---- */
 section{margin-bottom:16px}
+.textbtn{margin:-8px 0 18px;font-weight:500;font-size:14px;color:var(--muted)}
+textarea{
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:10px 11px;font:inherit;font-size:15px;width:100%;resize:vertical;
+}
+textarea:focus{outline:2px solid var(--burn);outline-offset:-1px;border-color:transparent}
+.swbox{padding:12px 0 0}
+.btn.swon{background:rgba(229,176,74,.14);border-color:var(--intake);color:var(--intake)}
+.sum.over{color:var(--over)}
 .shead{
   display:flex;align-items:center;justify-content:space-between;
   padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px;
